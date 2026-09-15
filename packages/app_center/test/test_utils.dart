@@ -33,7 +33,10 @@ extension WidgetTesterX on WidgetTester {
   BuildContext get context => element(find.byType(Scaffold).first);
   AppLocalizations get l10n => AppLocalizations.of(context);
 
-  Future<void> pumpApp(WidgetBuilder builder) async {
+  Future<void> pumpApp(
+    WidgetBuilder builder, {
+    GlobalKey<NavigatorState>? navigatorKey,
+  }) async {
     // The intended minimum size of the window.
     view.physicalSize =
         (const Size(800, 600) + const Offset(54, 54)) * view.devicePixelRatio;
@@ -46,6 +49,7 @@ extension WidgetTesterX on WidgetTester {
     await fontLoader.load();
     return pumpWidget(
       MaterialApp(
+        navigatorKey: navigatorKey,
         theme: ThemeData(fontFamily: 'UbuntuRegular'),
         localizationsDelegates: localizationsDelegates,
         home: Scaffold(body: Builder(builder: builder)),

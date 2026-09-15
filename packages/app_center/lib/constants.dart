@@ -31,3 +31,4 @@ const localDebInfoUrl =
 const debManageDocsUrl =
     'https://documentation.ubuntu.com/server/tutorial/managing-software/#installing-deb-packages';
 const snapStoreBaseUrl = 'https://snapcraft.io';
+const ubuntuPackagesBaseUrl = 'https://packages.ubuntu.com';

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_center/apps/app_page.dart';
 import 'package:app_center/apps/app_title_bar.dart';
 import 'package:app_center/appstream/appstream.dart';
+import 'package:app_center/constants.dart';
 import 'package:app_center/deb/deb_model.dart';
 import 'package:app_center/deb/deb_providers.dart';
 import 'package:app_center/error/error.dart';
@@ -71,11 +72,12 @@ class _DebView extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final currentDesktops = ref.watch(currentDesktopsProvider);
     final isCompulsory = debModel.isCompulsoryFor(currentDesktops);
+    final packageName = debModel.packageInfo?.packageId.name;
 
     return AppPage(
       titleBar: AppTitleBar.fromDeb(
         debModel,
-        actions: debModel.component.website != null
+        actions: packageName != null
             ? YaruIconButton(
                 icon: Icon(
                   YaruIcons.share,
@@ -99,7 +101,7 @@ class _DebView extends ConsumerWidget {
                     Directionality.of(navigationKey.currentContext!),
                   );
                   Clipboard.setData(
-                    ClipboardData(text: debModel.component.website!),
+                    ClipboardData(text: '$ubuntuPackagesBaseUrl/$packageName'),
                   );
                 },
               )

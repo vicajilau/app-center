@@ -5,11 +5,15 @@ import 'package:app_center/deb/deb_model.dart';
 import 'package:app_center/deb/deb_page.dart';
 import 'package:app_center/packagekit/packagekit_service.dart';
 import 'package:app_center/providers/current_desktops_provider.dart';
+import 'package:app_center/store/store_app.dart';
 import 'package:appstream/appstream.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:packagekit/packagekit.dart';
 import 'package:ubuntu_test/ubuntu_test.dart';
+import 'package:yaru/yaru.dart';
 
 import 'test_utils.dart';
 
@@ -165,5 +169,40 @@ void main() {
     await tester.pump();
 
     expect(find.text(tester.l10n.snapActionRemoveLabel), findsOneWidget);
+  });
+
+  testWidgets('share copies a link to the package', (tester) async {
+    createMockPackageKitService(packageInfo: packageInfo);
+    createMockAppstreamService(component: component);
+
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied.add((call.arguments as Map)['text'] as String);
+        }
+        return null;
+      },
+    );
+
+    // The share button shows its confirmation through the app-wide navigator
+    // key, so the test app has to be built around that same key.
+    final navigatorKey = GlobalKey<NavigatorState>();
+    await tester.pumpApp(
+      (_) => ProviderScope(
+        overrides: [
+          materialAppNavigatorKeyProvider.overrideWithValue(navigatorKey),
+        ],
+        child: const DebPage(id: 'testdeb'),
+      ),
+      navigatorKey: navigatorKey,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(YaruIcons.share));
+    await tester.pump();
+
+    expect(copied, equals(['https://packages.ubuntu.com/testdeb']));
   });
 }
